@@ -24,6 +24,64 @@ The steps this logic app takes are:
 5. Call the Cognitive services image classification endpoint with its key (from key vault)
 6. Return its response as the response to the overall logic app call
 
+As can be seen from the diagram, there is much use of variables. This is purely to aid debugging. These steps could be removed and the expressions injected directly into each step.
+
 # Demonstration front end
+This is a really simple HTML page hosted in an app service. This has no direct active content, so could even be hosted elsewhere, such as blob storage. At the page's heart is:
 
+```html
+<form method="post" enctype="multipart/form-data" action="<logic app HTTP trigger URL>">
+     <div>
+    <label for="file">Choose file to upload</label>
+    <input type="file" id="file" name="file" multiple>
+    </div>
+    <div>
+    <button>Submit</button>
+    </div>
+</form>
+```
+![alt text](https://github.com/jometzg/image-classification/blob/master/user-interface/front-end.png "Simple demo front end")
 
+![alt text](https://github.com/jometzg/image-classification/blob/master/user-interface/front-end-select-image.png "Seelct and image file to upload")
+
+The response is JSON
+>
+{
+	"description": {
+		"tags": [
+			"outdoor",
+			"water",
+			"building",
+			"boat",
+			"river",
+			"bridge",
+			"large",
+			"front",
+			"city",
+			"riding",
+			"train",
+			"traveling",
+			"clock",
+			"old",
+			"harbor",
+			"man",
+			"standing",
+			"white",
+			"track",
+			"tower",
+			"group"
+		],
+		"captions": [
+			{
+				"text": "a bridge over water with a city in the background",
+				"confidence": 0.8862045336564989
+			}
+		]
+	},
+	"requestId": "a020bda5-c5c1-426e-a60e-20dad6f00fbb",
+	"metadata": {
+		"width": 640,
+		"height": 360,
+		"format": "Jpeg"
+	}
+}
