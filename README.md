@@ -10,6 +10,8 @@ This is built on a few Azure resources:
 4. A web app to display the user interface
 5. Key vault for secrets
 
+See here for more [details](https://github.com/jometzg/image-classification/tree/master/logic-app)
+
 # Demonstration front end
 This is a really simple HTML page hosted in an app service. This has no direct active content, so could even be hosted elsewhere, such as blob storage. At the page's heart is:
 
