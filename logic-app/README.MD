@@ -1,7 +1,8 @@
 # Logic App Details
+![alt text](https://github.com/jometzg/image-classification/blob/master/logic-app/logic-app.png "logic app")
 
 There are three secrets in key vault
-![alt text](https://github.com/jometzg/cognitive-speech/blob/master/logic-app/key-vault-secrets.png "Key vault secrets")
+![alt text](https://github.com/jometzg/image-classification/blob/master/logic-app/key-vault-secrets.png "Key vault secrets")
 These are used to contruct the Cognitive services request.
 
 The Cognitive services call is of the form:
