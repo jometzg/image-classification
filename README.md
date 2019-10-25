@@ -8,4 +8,9 @@ This is built on a few Azure resources:
 2. A logic app to process image classification requests
 3. Blob storage to store images
 4. A web app to display the user interface
+5. Key vault for secrets
+
+# Logic App
+This is the heart of the demonstration.
+
 
