@@ -42,7 +42,11 @@ This is a really simple HTML page hosted in an app service. This has no direct a
 ```
 ![alt text](https://github.com/jometzg/image-classification/blob/master/user-interface/front-end.png "Simple demo front end")
 
-![alt text](https://github.com/jometzg/image-classification/blob/master/user-interface/front-end-select-image.png "Seelct and image file to upload")
+![alt text](https://github.com/jometzg/image-classification/blob/master/user-interface/front-end-select-image.png "Select and image file to upload")
+
+For an image like this:
+
+![alt text](https://github.com/jometzg/image-classification/blob/master/user-interface/beech.png "London")
 
 The response is JSON
 >
@@ -51,37 +55,40 @@ The response is JSON
 		"tags": [
 			"outdoor",
 			"water",
-			"building",
-			"boat",
-			"river",
-			"bridge",
-			"large",
-			"front",
-			"city",
-			"riding",
-			"train",
-			"traveling",
-			"clock",
-			"old",
-			"harbor",
+			"nature",
+			"beach",
+			"rock",
+			"sitting",
+			"ocean",
+			"mountain",
 			"man",
 			"standing",
-			"white",
-			"track",
-			"tower",
-			"group"
+			"people",
+			"umbrella",
+			"holding",
+			"body",
+			"boat",
+			"rocky",
+			"sand",
+			"large",
+			"wave",
+			"bird",
+			"river",
+			"flying",
+			"playing",
+			"frisbee"
 		],
 		"captions": [
 			{
-				"text": "a bridge over water with a city in the background",
-				"confidence": 0.8862045336564989
+				"text": "a body of water",
+				"confidence": 0.9388402258579938
 			}
 		]
 	},
-	"requestId": "a020bda5-c5c1-426e-a60e-20dad6f00fbb",
+	"requestId": "15d809cd-5a4d-42a6-bb5c-bcbc5f3ca169",
 	"metadata": {
-		"width": 640,
-		"height": 360,
+		"width": 1220,
+		"height": 915,
 		"format": "Jpeg"
 	}
 }
