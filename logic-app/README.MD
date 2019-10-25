@@ -1,18 +1,35 @@
 # Logic App Details
 
+There are three secrets in key vault
+![alt text](https://github.com/jometzg/cognitive-speech/blob/master/logic-app/key-vault-secrets.png "Key vault secrets")
+These are used to contruct the Cognitive services request.
+
+The Cognitive services call is of the form:
+```
+POST https://westeurope.api.cognitive.microsoft.com/vision/v1.0/describe?maxCandidates=1 HTTP/1.1 
+Host: westeurope.api.cognitive.microsoft.com 
+Content-Type: application/json 
+Ocp-Apim-Subscription-Key: XXXX-COGNITIVE-KEY-XXXX 
+{
+    "url":"< URL of the image put into blob storage>"
+}
+```
+So, the HTTP trigger in the logic app takes the inbound file, stores this in a *public* blob container and then uses that as the URL to the JSON in the POST to the Cognitive Services image classification API.
+
+The JSON version of the logic app code is below:
 ```json
 {
     "$connections": {
         "value": {
             "azureblob": {
-                "connectionId": "/subscriptions/2e500704-1ab3-49c6-bbbb-8b2bec98ffdc/resourceGroups/image-recognition-rg/providers/Microsoft.Web/connections/azureblob",
+                "connectionId": "/subscriptions/XXXXXXXXXXXXXXXXXXXX/resourceGroups/image-recognition-rg/providers/Microsoft.Web/connections/azureblob",
                 "connectionName": "azureblob",
                 "id": "/subscriptions/2e500704-1ab3-49c6-bbbb-8b2bec98ffdc/providers/Microsoft.Web/locations/westeurope/managedApis/azureblob"
             },
             "keyvault_1": {
-                "connectionId": "/subscriptions/2e500704-1ab3-49c6-bbbb-8b2bec98ffdc/resourceGroups/image-recognition-rg/providers/Microsoft.Web/connections/keyvault-1",
+                "connectionId": "/subscriptions/XXXXXXXXXXXXXXXXXXXX/resourceGroups/image-recognition-rg/providers/Microsoft.Web/connections/keyvault-1",
                 "connectionName": "keyvault-1",
-                "id": "/subscriptions/2e500704-1ab3-49c6-bbbb-8b2bec98ffdc/providers/Microsoft.Web/locations/westeurope/managedApis/keyvault"
+                "id": "/subscriptions/XXXXXXXXXXXXXXXXXXXX/providers/Microsoft.Web/locations/westeurope/managedApis/keyvault"
             }
         }
     },
@@ -279,4 +296,40 @@
         }
     }
 }
+```
+
+Note that the connections to blob storage and key vault will need to be recreated for your blob storage and key vault and the secrets need to be manually entered into key vault.
+
+It should also be noted that a logic app creates its own POST URL on first Save. It is this that needs to be put in the HTML form as the POST action.
+
+This can also be tested without the user interface with Postman.
+
+```
+POST <Logic app HTTP trigger URL> HTTP/1.1
+Host: xxxhost.logic.azure.com:443
+Ocp-Apim-Subscription-Key: XXXX-KEY-XXXXXXXXXXX
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+User-Agent: PostmanRuntime/7.17.1
+Accept: */*
+Cache-Control: no-cache
+Postman-Token: b7cd145e-f58c-4456-b1f3-da78a3a2769c,98bffb80-fa4c-4f81-a2ef-43d9311394ed
+Host: prod-87.westeurope.logic.azure.com:443
+Accept-Encoding: gzip, deflate
+Content-Length: 544910
+Connection: keep-alive
+cache-control: no-cache
+
+
+Content-Disposition: form-data; name="file"; filename="/C:/Users/jometzg/Downloads/train-station.jpg
+
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW--,
+Content-Disposition: form-data; name="file"; filename="/C:/Users/jometzg/Downloads/train-station.jpg
+
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+Content-Disposition: form-data; name="destination"
+
+train-station.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
 ```
