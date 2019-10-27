@@ -78,3 +78,19 @@ The response is JSON
 		"format": "Jpeg"
 	}
 }
+
+# Find the celebrity
+This is a slightly different caspability, which attempts to name a person given their picture. This uses the same Cognitive Services account, but a slightly different API URL. It then returns some JSON with the name of the person and a level of confidence.
+
+Most of this demonstration is identical to that of the image classification one, except:
+1. the Cognitive services URL is slightly different
+2. The response is parsed and returns a different response if the confidence is greater that 90% ( 0.90)
+
+The Cognitive URL is of the form:
+```
+POST https://<region>.api.cognitive.microsoft.com/vision/v1.0/models/celebrities/analyze
+{
+  "url": "https://<blob-account>.blob.core.windows.net/images/jj.png"
+}
+```
+The logic app for this is *find-the-celeb* and can be found in the "logic-app" folder. There is also a piece of HTML *celeb.htm* in the "user-interface" folder which can be either put in a web app or blob storage to generate the user interface. This HTML page only differs in its form *action* endpoint.
