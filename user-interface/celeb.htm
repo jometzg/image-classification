@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head> 
+    <meta charset="utf-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <meta http-equiv=X-UA-Compatible content="IE=edge"> 
+    <title>Celebrity Test</title> 
+    <link rel="shortcut icon" href="https://appservice.azureedge.net/images/app-service/v3/favicon.ico" type="image/x-icon"/> <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/4.1.1/css/bootstrap.min.css" crossorigin="anonymous"> <link rel="stylesheet" type="text/css" href="https://appservice.azureedge.net/css/app-service/v3/main.css"> 
+    <script src="https://appservice.azureedge.net/scripts/app-service/v3/loc.min.js" crossorigin="anonymous"></script> 
+    <script type="text/javascript">window.onload=function (){try{var a=window.location.hostname; if (a.includes(".azurewebsites.net")){a=a.replace(".azurewebsites.net", "")}var b=document.getElementById("depCenterLink1"); b.setAttribute("href", b.getAttribute("href") + "&sitename=" + a); loc();}catch (d){}}</script>
+    </head>
+    <body> 
+    <nav class="navbar navbar-light bg-light"> <div class="navbar-brand "> <div class="container pl-4 ml-5"> <img src="https://appservice.azureedge.net/images/app-service/v3/microsoft_azure_logo.svg" width="270" height="108" alt=""> 
+    </div></div></nav> <div class="container-fluid container-height mr-2"> <div class="pt-10 pb-10 mt-10 mb-10 d-xxs-none d-xs-none d-sm-none d-md-none d-lg-block d-xl-block" style="height:20px; width:100%; clear:both;">
+        
+    </div><div class="row"> 
+    <div class="row col-xs-12 col-sm-12 d-block d-lg-none d-xl-none d-md-block d-sm-block d-xs-block"> 
+    <div class="text-center"> <img src="https://appservice.azureedge.net/images/app-service/v3/generic.svg"> 
+    </div></div>
+    <div class=" extra-pl-small-scr offset-xl-1 offset-lg-1 offset-md-2 offset-sm-2 offset-xs-4 col-xl-5 col-lg-5 col-md-10 col-sm-11 col-xs-11 div-vertical-center"> 
+    <div class="container-fluid"> 
+    <div class="row"> 
+    <h2 id="heyDevelopers">Hey, some Cognitive Services to play with!</h2> </div>
+    <br><div class="row"> 
+    <h4 id="upRunning">Load an image of a celebrity and we will try to work out who it is.</h4> </div>
+    <div class="row"> 
+   <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.2.1.min.js" crossorigin="anonymous"></script> 
+   <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/4.1.1/bootstrap.min.js" crossorigin="anonymous"></script>
+    <form method="post" enctype="multipart/form-data" action="https://prod-21.westeurope.logic.azure.com:443/workflows/3196a0fd3a3c4f139e23b71c9d2f9ffd/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=TLTkfzeHGNeGsRuQp-bmb08jkD7x_4sEPL05iCmy1g0">
+     <div>
+    <label for="file">Choose image file to upload</label>
+    <input type="file" id="file" name="file" multiple>
+    </div>
+    <div>
+    <button>Submit</button>
+    </div>
+</form>
+    </body>
+</html>
+    
