@@ -334,3 +334,10 @@ Content-Disposition: form-data; name="destination"
 train-station.jpg
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 ```
+
+# Find The Celebirity Logic App
+This is very similar to the image classification logic app, but it has been extended to parse the response JSON and to return a different response string depending on whether the Cognitive Services call returns a *confidence* value of greater than 0.90.
+
+The Logic app designer view is:
+
+![alt text](https://github.com/jometzg/image-classification/blob/master/logic-app/celeb-logic-app.png "find the celeb logic app")
