@@ -94,3 +94,9 @@ POST https://<region>.api.cognitive.microsoft.com/vision/v1.0/models/celebrities
 }
 ```
 The logic app for this is *find-the-celeb* and can be found in the "logic-app" folder. There is also a piece of HTML *celeb.htm* in the "user-interface" folder which can be either put in a web app or blob storage to generate the user interface. This HTML page only differs in its form *action* endpoint.
+
+![alt text](https://github.com/jometzg/image-classification/blob/master/user-interface/barak.jpg "Simple image")
+
+![alt text](https://github.com/jometzg/image-classification/blob/master/user-interface/front-end-select-image-barak.png "Select and image file to upload")
+
+![alt text](https://github.com/jometzg/image-classification/blob/master/user-interface/front-end-celeb-response.png "Celebrity response")
