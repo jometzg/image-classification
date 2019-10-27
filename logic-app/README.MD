@@ -335,9 +335,13 @@ train-station.jpg
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 ```
 
-# Find The Celebirity Logic App
+# Find The Celebrity Logic App
 This is very similar to the image classification logic app, but it has been extended to parse the response JSON and to return a different response string depending on whether the Cognitive Services call returns a *confidence* value of greater than 0.90.
 
 The Logic app designer view is:
 
 ![alt text](https://github.com/jometzg/image-classification/blob/master/logic-app/celeb-logic-app.png "find the celeb logic app")
+
+As can be seen from above, the HTTP response is parsed an one value (the *confidence*) tested. It then sets a variable with a different response string before returning the response.
+
+The logic app returns the bare miniumum text. In a real application, this would return a full HTML page, rather than a fragment.
