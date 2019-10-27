@@ -60,6 +60,6 @@ The Logic app designer view is:
 
 ![alt text](https://github.com/jometzg/image-classification/blob/master/logic-app/celeb-logic-app.png "find the celeb logic app")
 
-As can be seen from above, the HTTP response is parsed an one value (the *confidence*) tested. It then sets a variable with a different response string before returning the response.
+As can be seen from above, the HTTP response is parsed and one value tested (the *confidence*). It then sets the *reply* variable with a different response string before returning the response.
 
 The logic app returns the bare miniumum text. In a real application, this would return a full HTML page, rather than a fragment.
