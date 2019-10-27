@@ -95,8 +95,13 @@ POST https://<region>.api.cognitive.microsoft.com/vision/v1.0/models/celebrities
 ```
 The logic app for this is *find-the-celeb* and can be found in the "logic-app" folder. There is also a piece of HTML *celeb.htm* in the "user-interface" folder which can be either put in a web app or blob storage to generate the user interface. This HTML page only differs in its form *action* endpoint.
 
+Below is a test sample image of someone quite well known.
 ![alt text](https://github.com/jometzg/image-classification/blob/master/user-interface/barak.jpg "Simple image")
 
+Plugging this into the "celeb.htm" page:
 ![alt text](https://github.com/jometzg/image-classification/blob/master/user-interface/front-end-select-image-barak.png "Select and image file to upload")
 
+And the response is:
 ![alt text](https://github.com/jometzg/image-classification/blob/master/user-interface/front-end-celeb-response.png "Celebrity response")
+
+For images of people less well known, the logic app generates a slightly different response. This can be easily tested by putting images of much less known people. But it can be surprising how many non-celebrities Cognitive Services can recognise!
