@@ -16,14 +16,14 @@
     "definition": {
         "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
         "actions": {
-            "Condition_2": {
+            "Any_celebs_returned": {
                 "actions": {
-                    "Condition": {
+                    "Confidence_high": {
                         "actions": {
                             "Set_variable": {
                                 "inputs": {
                                     "name": "reply",
-                                    "value": "@{concat('I am sure it is ', body('Parse_JSON')?['result']?['celebrities'][0]['name'], ', confidence: ', variables('confidence'))}"
+                                    "value": "@{concat('I am sure it is ', body('Parse_JSON')?['result']?['celebrities'][0]['name'], ', confidence: ', body('Parse_JSON')?['result']?['celebrities'][0]['confidence'])}"
                                 },
                                 "runAfter": {},
                                 "type": "SetVariable"
@@ -34,7 +34,7 @@
                                 "Set_variable_2": {
                                     "inputs": {
                                         "name": "reply",
-                                        "value": "@{concat('I am not sure. Is it ', body('Parse_JSON')?['result']?['celebrities'][0]['name'], '?, confidence: ', variables('confidence'))}"
+                                        "value": "@{concat('I am not sure. Is it ', body('Parse_JSON')?['result']?['celebrities'][0]['name'], '?, confidence: ', body('Parse_JSON')?['result']?['celebrities'][0]['confidence'])}"
                                     },
                                     "runAfter": {},
                                     "type": "SetVariable"
@@ -51,27 +51,8 @@
                                 }
                             ]
                         },
-                        "runAfter": {
-                            "For_each": [
-                                "Succeeded"
-                            ]
-                        },
-                        "type": "If"
-                    },
-                    "For_each": {
-                        "actions": {
-                            "Set_variable_3": {
-                                "inputs": {
-                                    "name": "confidence",
-                                    "value": "@items('For_each')?['confidence']"
-                                },
-                                "runAfter": {},
-                                "type": "SetVariable"
-                            }
-                        },
-                        "foreach": "@body('Parse_JSON')?['result']?['celebrities']",
                         "runAfter": {},
-                        "type": "Foreach"
+                        "type": "If"
                     }
                 },
                 "else": {
@@ -233,23 +214,6 @@
                 },
                 "type": "InitializeVariable"
             },
-            "Initialize_variable": {
-                "inputs": {
-                    "variables": [
-                        {
-                            "name": "confidence",
-                            "type": "Float",
-                            "value": 0
-                        }
-                    ]
-                },
-                "runAfter": {
-                    "Initialize_reply": [
-                        "Succeeded"
-                    ]
-                },
-                "type": "InitializeVariable"
-            },
             "Parse_JSON": {
                 "inputs": {
                     "content": "@body('HTTP')",
@@ -331,7 +295,7 @@
                 },
                 "kind": "Http",
                 "runAfter": {
-                    "Condition_2": [
+                    "Any_celebs_returned": [
                         "Succeeded"
                     ]
                 },
@@ -384,7 +348,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Initialize_variable": [
+                    "Initialize_reply": [
                         "Succeeded"
                     ]
                 },
