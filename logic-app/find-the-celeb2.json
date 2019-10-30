@@ -1,18 +1,4 @@
 {
-    "$connections": {
-        "value": {
-            "azureblob": {
-                "connectionId": "/subscriptions/2e500704-1ab3-49c6-bbbb-8b2bec98ffdc/resourceGroups/image-recognition-rg/providers/Microsoft.Web/connections/azureblob",
-                "connectionName": "azureblob",
-                "id": "/subscriptions/2e500704-1ab3-49c6-bbbb-8b2bec98ffdc/providers/Microsoft.Web/locations/westeurope/managedApis/azureblob"
-            },
-            "keyvault_1": {
-                "connectionId": "/subscriptions/2e500704-1ab3-49c6-bbbb-8b2bec98ffdc/resourceGroups/image-recognition-rg/providers/Microsoft.Web/connections/keyvault-1",
-                "connectionName": "keyvault-1",
-                "id": "/subscriptions/2e500704-1ab3-49c6-bbbb-8b2bec98ffdc/providers/Microsoft.Web/locations/westeurope/managedApis/keyvault"
-            }
-        }
-    },
     "definition": {
         "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
         "actions": {
@@ -290,7 +276,10 @@
             },
             "Response": {
                 "inputs": {
-                    "body": "@variables('reply')",
+                    "body": "<body>\n\t\t<h1>@{variables('reply')}</h1>\n\t<img src=\"@{body('Get_blob_url')?['value']}/images/@{variables('filename')}\" style=\"width:50%\"> \n        <p>\n</body>",
+                    "headers": {
+                        "Content-Type": "text/html"
+                    },
                     "statusCode": "@outputs('HTTP')['statusCode']"
                 },
                 "kind": "Http",
@@ -431,6 +420,22 @@
                 },
                 "kind": "Http",
                 "type": "Request"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "azureblob": {
+                    "connectionId": "/subscriptions/2e500704-1ab3-49c6-bbbb-8b2bec98ffdc/resourceGroups/image-recognition-rg/providers/Microsoft.Web/connections/azureblob",
+                    "connectionName": "azureblob",
+                    "id": "/subscriptions/2e500704-1ab3-49c6-bbbb-8b2bec98ffdc/providers/Microsoft.Web/locations/westeurope/managedApis/azureblob"
+                },
+                "keyvault_1": {
+                    "connectionId": "/subscriptions/2e500704-1ab3-49c6-bbbb-8b2bec98ffdc/resourceGroups/image-recognition-rg/providers/Microsoft.Web/connections/keyvault-1",
+                    "connectionName": "keyvault-1",
+                    "id": "/subscriptions/2e500704-1ab3-49c6-bbbb-8b2bec98ffdc/providers/Microsoft.Web/locations/westeurope/managedApis/keyvault"
+                }
             }
         }
     }
