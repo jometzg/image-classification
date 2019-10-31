@@ -21,8 +21,10 @@ The two logic apps shoould be deployed. The actions in the logic apps that use c
 
 Once they have their connections amended the logic apps should save correctly and can then be tested.
 
-### the find-the-celeb logic app uses the same connectors, but the logic is a little different
-```
-az group deployment create -g "image-rg"   --template-file celeb.json  --name "celeb"   --query 'properties.provisioningState' -o tsv
-```
+### the find-the-celeb logic app
+This is included in the main template. It needs amending in the same way as the image recognition logic app
 
+### HTML pages
+The simplest mechanism is to use blob storage for web site hosting.
+
+The HTML files have a URL to the logic app POST endpoint - these need to be amended to work correctly
