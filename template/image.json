@@ -1,0 +1,816 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "connections_keyvault_name": {
+      "defaultValue": "keyvault",
+      "type": "String"
+    },
+    "connections_azureblob_name": {
+      "defaultValue": "azureblob",
+      "type": "String"
+    },
+    "connections_keyvault_1_name": {
+      "defaultValue": "keyvault-1",
+      "type": "String"
+    },
+    "workflows_classify_image_name": {
+      "defaultValue": "classify-image",
+      "type": "String"
+    },
+    "workflows_find_the_celeb_name": {
+      "defaultValue": "find-the-celeb",
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "[parameters('connections_azureblob_name')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "displayName": "images",
+        "customParameterValues": {},
+        "api": {
+          "id": "[concat(subscription().id,'/providers/Microsoft.Web/locations/',resourceGroup().location,'/managedApis/', parameters('connections_azureblob_name'))]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "[parameters('connections_keyvault_name')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "displayName": "jometzg@microsoft.com",
+        "customParameterValues": {},
+        "api": {
+          "id": "[concat(subscription().id,'/providers/Microsoft.Web/locations/',resourceGroup().location,'/managedApis/', parameters('connections_keyvault_name'))]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "[parameters('connections_keyvault_1_name')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "displayName": "jometzg@microsoft.com",
+        "customParameterValues": {},
+        "api": {
+          "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/',resourceGroup().location,'/managedApis/keyvault')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2017-07-01",
+      "name": "[parameters('workflows_classify_image_name')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/connections', parameters('connections_azureblob_name'))]",
+        "[resourceId('Microsoft.Web/connections', parameters('connections_keyvault_1_name'))]"
+      ],
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "$connections": {
+              "defaultValue": {},
+              "type": "Object"
+            }
+          },
+          "triggers": {
+            "manual": {
+              "type": "Request",
+              "kind": "Http",
+              "inputs": {
+                "schema": {
+                  "properties": {
+                    "$content": {
+                      "type": "string"
+                    },
+                    "$content-type": {
+                      "type": "string"
+                    },
+                    "$multipart": {
+                      "items": {
+                        "properties": {
+                          "body": {
+                            "properties": {
+                              "$content": {
+                                "type": "string"
+                              },
+                              "$content-type": {
+                                "type": "string"
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "headers": {
+                            "properties": {
+                              "Content-Disposition": {
+                                "type": "string"
+                              },
+                              "Content-Type": {
+                                "type": "string"
+                              }
+                            },
+                            "type": "object"
+                          }
+                        },
+                        "required": [
+                          "headers",
+                          "body"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "actions": {
+            "Create_blob_2": {
+              "runAfter": {
+                "Set_Filename": [
+                  "Succeeded"
+                ]
+              },
+              "type": "ApiConnection",
+              "inputs": {
+                "body": "@base64ToBinary(triggerBody()?['$multipart'][0]['body']['$content'])",
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['azureblob']['connectionId']"
+                  }
+                },
+                "method": "post",
+                "path": "/datasets/default/files",
+                "queries": {
+                  "folderPath": "/images",
+                  "name": "@variables('filename')",
+                  "queryParametersSingleEncoded": true
+                }
+              },
+              "runtimeConfiguration": {
+                "contentTransfer": {
+                  "transferMode": "Chunked"
+                }
+              }
+            },
+            "Get_blob_url": {
+              "runAfter": {
+                "Get_cognitive_url": [
+                  "Succeeded"
+                ]
+              },
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['keyvault_1']['connectionId']"
+                  }
+                },
+                "method": "get",
+                "path": "/secrets/@{encodeURIComponent('blob-url')}/value"
+              }
+            },
+            "Get_cognitive_key": {
+              "runAfter": {},
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['keyvault_1']['connectionId']"
+                  }
+                },
+                "method": "get",
+                "path": "/secrets/@{encodeURIComponent('cognitive-key')}/value"
+              }
+            },
+            "Get_cognitive_url": {
+              "runAfter": {
+                "Get_cognitive_key": [
+                  "Succeeded"
+                ]
+              },
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['keyvault_1']['connectionId']"
+                  }
+                },
+                "method": "get",
+                "path": "/secrets/@{encodeURIComponent('congitive-url')}/value"
+              }
+            },
+            "HTTP": {
+              "runAfter": {
+                "Create_blob_2": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Http",
+              "inputs": {
+                "body": {
+                  "url": "@{body('Get_blob_url')?['value']}/images/@{variables('filename')}"
+                },
+                "headers": {
+                  "Ocp-Apim-Subscription-Key": "@body('Get_cognitive_key')?['value']"
+                },
+                "method": "POST",
+                "queries": {
+                  "maxCandidates": "1"
+                },
+                "uri": "@{body('Get_cognitive_url')?['value']}/vision/v1.0/describe"
+              }
+            },
+            "Initialize_filename": {
+              "runAfter": {
+                "init_cd": [
+                  "Succeeded"
+                ]
+              },
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "filename",
+                    "type": "String",
+                    "value": "xxx"
+                  }
+                ]
+              }
+            },
+            "Response": {
+              "runAfter": {
+                "HTTP": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Response",
+              "kind": "Http",
+              "inputs": {
+                "body": "<body>\n\t\t<h1>@{body('HTTP')?['description']['captions'][0]['text']}</h1>\n\t<img src=\"@{body('Get_blob_url')?['value']}/images/@{variables('filename')}\" style=\"width:50%\"> \n        <p>\n        Tags:  @{body('HTTP')?['description']['tags']}\n</body>",
+                "headers": {
+                  "Content-Type": "text/html",
+                  "title": "Image Classification Response"
+                },
+                "statusCode": "@outputs('HTTP')['statusCode']"
+              }
+            },
+            "Set_CD": {
+              "runAfter": {
+                "init_length": [
+                  "Succeeded"
+                ]
+              },
+              "type": "SetVariable",
+              "inputs": {
+                "name": "cd",
+                "value": "@{triggerBody()?['$multipart'][0]['headers']['Content-Disposition']}"
+              }
+            },
+            "Set_Filename": {
+              "runAfter": {
+                "Set_length": [
+                  "Succeeded"
+                ]
+              },
+              "type": "SetVariable",
+              "inputs": {
+                "name": "filename",
+                "value": "@{substring(variables('cd'), 34, sub(variables('length'), 35))}"
+              }
+            },
+            "Set_length": {
+              "runAfter": {
+                "Set_CD": [
+                  "Succeeded"
+                ]
+              },
+              "type": "SetVariable",
+              "inputs": {
+                "name": "length",
+                "value": "@length(variables('cd'))"
+              }
+            },
+            "init_cd": {
+              "runAfter": {
+                "Get_blob_url": [
+                  "Succeeded"
+                ]
+              },
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "cd",
+                    "type": "String",
+                    "value": "XXX"
+                  }
+                ]
+              }
+            },
+            "init_length": {
+              "runAfter": {
+                "Initialize_filename": [
+                  "Succeeded"
+                ]
+              },
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "length",
+                    "type": "Integer",
+                    "value": 0
+                  }
+                ]
+              }
+            }
+          },
+          "outputs": {}
+        },
+        "parameters": {
+          "$connections": {
+            "value": {
+              "azureblob": {
+                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connections_azureblob_name'))]",
+                "connectionName": "azureblob",
+                "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azureblob')]"
+              },
+              "keyvault_1": {
+                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connections_keyvault_1_name'))]",
+                "connectionName": "keyvault-1",
+                "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/keyvault')]"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2017-07-01",
+      "name": "[parameters('workflows_find_the_celeb_name')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/connections', parameters('connections_azureblob_name'))]",
+        "[resourceId('Microsoft.Web/connections', parameters('connections_keyvault_1_name'))]"
+      ],
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "$connections": {
+              "defaultValue": {},
+              "type": "Object"
+            }
+          },
+          "triggers": {
+            "manual": {
+              "type": "Request",
+              "kind": "Http",
+              "inputs": {
+                "schema": {
+                  "properties": {
+                    "$content": {
+                      "type": "string"
+                    },
+                    "$content-type": {
+                      "type": "string"
+                    },
+                    "$multipart": {
+                      "items": {
+                        "properties": {
+                          "body": {
+                            "properties": {
+                              "$content": {
+                                "type": "string"
+                              },
+                              "$content-type": {
+                                "type": "string"
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "headers": {
+                            "properties": {
+                              "Content-Disposition": {
+                                "type": "string"
+                              },
+                              "Content-Type": {
+                                "type": "string"
+                              }
+                            },
+                            "type": "object"
+                          }
+                        },
+                        "required": [
+                          "headers",
+                          "body"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "actions": {
+            "Any_celebs_returned": {
+              "actions": {
+                "Confidence_high": {
+                  "actions": {
+                    "Set_variable": {
+                      "runAfter": {},
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "reply",
+                        "value": "@{concat('I am sure it is ', body('Parse_JSON')?['result']?['celebrities'][0]['name'], ', confidence: ', body('Parse_JSON')?['result']?['celebrities'][0]['confidence'])}"
+                      }
+                    }
+                  },
+                  "runAfter": {},
+                  "else": {
+                    "actions": {
+                      "Set_variable_2": {
+                        "runAfter": {},
+                        "type": "SetVariable",
+                        "inputs": {
+                          "name": "reply",
+                          "value": "@{concat('I am not sure. Is it ', body('Parse_JSON')?['result']?['celebrities'][0]['name'], '?, confidence: ', body('Parse_JSON')?['result']?['celebrities'][0]['confidence'])}"
+                        }
+                      }
+                    }
+                  },
+                  "expression": {
+                    "and": [
+                      {
+                        "greater": [
+                          "@body('Parse_JSON')?['result']?['celebrities'][0]['confidence']",
+                          0.9
+                        ]
+                      }
+                    ]
+                  },
+                  "type": "If"
+                }
+              },
+              "runAfter": {
+                "Parse_JSON": [
+                  "Succeeded"
+                ]
+              },
+              "else": {
+                "actions": {
+                  "Set_variable_4": {
+                    "runAfter": {},
+                    "type": "SetVariable",
+                    "inputs": {
+                      "name": "reply",
+                      "value": "There seems to be a problem :-("
+                    }
+                  }
+                }
+              },
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@empty(body('Parse_JSON')?['result']?['celebrities'])",
+                      false
+                    ]
+                  }
+                ]
+              },
+              "type": "If"
+            },
+            "Create_blob_2": {
+              "runAfter": {
+                "Set_Filename": [
+                  "Succeeded"
+                ]
+              },
+              "type": "ApiConnection",
+              "inputs": {
+                "body": "@base64ToBinary(triggerBody()?['$multipart'][0]['body']['$content'])",
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['azureblob']['connectionId']"
+                  }
+                },
+                "method": "post",
+                "path": "/datasets/default/files",
+                "queries": {
+                  "folderPath": "/images",
+                  "name": "@variables('filename')",
+                  "queryParametersSingleEncoded": true
+                }
+              },
+              "runtimeConfiguration": {
+                "contentTransfer": {
+                  "transferMode": "Chunked"
+                }
+              }
+            },
+            "Get_blob_url": {
+              "runAfter": {
+                "Get_cognitive_url": [
+                  "Succeeded"
+                ]
+              },
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['keyvault_1']['connectionId']"
+                  }
+                },
+                "method": "get",
+                "path": "/secrets/@{encodeURIComponent('blob-url')}/value"
+              }
+            },
+            "Get_cognitive_key": {
+              "runAfter": {},
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['keyvault_1']['connectionId']"
+                  }
+                },
+                "method": "get",
+                "path": "/secrets/@{encodeURIComponent('cognitive-key')}/value"
+              }
+            },
+            "Get_cognitive_url": {
+              "runAfter": {
+                "Get_cognitive_key": [
+                  "Succeeded"
+                ]
+              },
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['keyvault_1']['connectionId']"
+                  }
+                },
+                "method": "get",
+                "path": "/secrets/@{encodeURIComponent('congitive-url')}/value"
+              }
+            },
+            "HTTP": {
+              "runAfter": {
+                "Create_blob_2": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Http",
+              "inputs": {
+                "body": {
+                  "url": "@{body('Get_blob_url')?['value']}/images/@{variables('filename')}"
+                },
+                "headers": {
+                  "Ocp-Apim-Subscription-Key": "@body('Get_cognitive_key')?['value']"
+                },
+                "method": "POST",
+                "queries": {
+                  "maxCandidates": "1"
+                },
+                "uri": "@{body('Get_cognitive_url')?['value']}/vision/v1.0/models/celebrities/analyze"
+              }
+            },
+            "Initialize_filename": {
+              "runAfter": {
+                "init_cd": [
+                  "Succeeded"
+                ]
+              },
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "filename",
+                    "type": "String",
+                    "value": "xxx"
+                  }
+                ]
+              }
+            },
+            "Initialize_reply": {
+              "runAfter": {
+                "Get_blob_url": [
+                  "Succeeded"
+                ]
+              },
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "reply",
+                    "type": "String",
+                    "value": "not found"
+                  }
+                ]
+              }
+            },
+            "Parse_JSON": {
+              "runAfter": {
+                "HTTP": [
+                  "Succeeded"
+                ]
+              },
+              "type": "ParseJson",
+              "inputs": {
+                "content": "@body('HTTP')",
+                "schema": {
+                  "properties": {
+                    "metadata": {
+                      "properties": {
+                        "format": {
+                          "type": "string"
+                        },
+                        "height": {
+                          "type": "integer"
+                        },
+                        "width": {
+                          "type": "integer"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "requestId": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "properties": {
+                        "celebrities": {
+                          "items": {
+                            "properties": {
+                              "confidence": {
+                                "type": "number"
+                              },
+                              "faceRectangle": {
+                                "properties": {
+                                  "height": {
+                                    "type": "integer"
+                                  },
+                                  "left": {
+                                    "type": "integer"
+                                  },
+                                  "top": {
+                                    "type": "integer"
+                                  },
+                                  "width": {
+                                    "type": "integer"
+                                  }
+                                },
+                                "type": "object"
+                              },
+                              "name": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "faceRectangle",
+                              "name",
+                              "confidence"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "Response": {
+              "runAfter": {
+                "Any_celebs_returned": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Response",
+              "kind": "Http",
+              "inputs": {
+                "body": "<body>\n\t\t<h1>@{variables('reply')}</h1>\n\t<img src=\"@{body('Get_blob_url')?['value']}/images/@{variables('filename')}\" style=\"width:50%\"> \n        <p>\n</body>",
+                "headers": {
+                  "Content-Type": "text/html"
+                },
+                "statusCode": "@outputs('HTTP')['statusCode']"
+              }
+            },
+            "Set_CD": {
+              "runAfter": {
+                "init_length": [
+                  "Succeeded"
+                ]
+              },
+              "type": "SetVariable",
+              "inputs": {
+                "name": "cd",
+                "value": "@{triggerBody()?['$multipart'][0]['headers']['Content-Disposition']}"
+              }
+            },
+            "Set_Filename": {
+              "runAfter": {
+                "Set_length": [
+                  "Succeeded"
+                ]
+              },
+              "type": "SetVariable",
+              "inputs": {
+                "name": "filename",
+                "value": "@{substring(variables('cd'), 34, sub(variables('length'), 35))}"
+              }
+            },
+            "Set_length": {
+              "runAfter": {
+                "Set_CD": [
+                  "Succeeded"
+                ]
+              },
+              "type": "SetVariable",
+              "inputs": {
+                "name": "length",
+                "value": "@length(variables('cd'))"
+              }
+            },
+            "init_cd": {
+              "runAfter": {
+                "Initialize_reply": [
+                  "Succeeded"
+                ]
+              },
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "cd",
+                    "type": "String",
+                    "value": "XXX"
+                  }
+                ]
+              }
+            },
+            "init_length": {
+              "runAfter": {
+                "Initialize_filename": [
+                  "Succeeded"
+                ]
+              },
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "length",
+                    "type": "Integer",
+                    "value": 0
+                  }
+                ]
+              }
+            }
+          },
+          "outputs": {}
+        },
+        "parameters": {
+          "$connections": {
+            "value": {
+              "azureblob": {
+                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connections_azureblob_name'))]",
+                "connectionName": "azureblob",
+                "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azureblob')]"
+              },
+              "keyvault_1": {
+                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connections_keyvault_1_name'))]",
+                "connectionName": "keyvault-1",
+                "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/keyvault')]"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
