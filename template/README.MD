@@ -11,9 +11,9 @@ Using the CLI and choosing your resource group (in this case *image-rg*):
 ```
 az group deployment create -g "image-rg"   --template-file imagerecognition.json  --name "imagerecognition"   --query 'properties.provisioningState' -o tsv
 ```
-Or in the portal inside the *image-rg* resource group hit *+Add* and choose "Template Deployment (Deplpoy using custom templates)", then choose "build your own template in the editor" and then paste into the template box the contents of *imagerecognition.json". 
+Or in the portal inside the *image-rg* resource group hit "+Add" and choose "Template Deployment (Deploy using custom templates)", then choose "build your own template in the editor" and then paste into the template box the contents of *imagerecognition.json". 
 
-Note that the Cognitive account, the storage account and key vault names need to be unique, so that you will need to amend these. For key vault provisioning, there is a requirement to use the *objectId* of your username that you sign into the Azure portal. This can be extracted from the portal and needs to be updated in the parameters of the template.
+**Note that the Cognitive account, the storage account and key vault names need to be unique, so that you will need to amend these. For key vault provisioning, there is a requirement to use the *objectId* of your username that you sign into the Azure portal. This can be extracted from the portal and needs to be updated in the parameters of the template.**
 
 ### Amend the logic app connections
 The two logic apps shoould be deployed. The actions in the logic apps that use connections will need opening and the connections fixing. 
